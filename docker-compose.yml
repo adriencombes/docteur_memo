@@ -1,0 +1,8 @@
+services:
+  db:
+    image: postgres:15.4
+    restart: always
+    env_file: .env
+    hostname: localhost
+    ports:
+      - 5401:5432
