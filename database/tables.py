@@ -13,34 +13,53 @@ from settings import meta
 
 ##### FUNCTIONS #####
 
+def generate_id():
+    return uuid.uuid4().hex
+
 def init_tables_schemas(engine):
+
+    users = Table(
+        'users', meta,
+        Column('user_id', String, primary_key = True),
+        Column('name', String),
+        Column('password', String),
+        Column('status', String)
+    )
 
     patients = Table(
         'patients', meta,
-        Column('user_id', Integer, primary_key = True),
+        Column('user_id', String, primary_key = True),
         Column('name', String),
         Column('age',Integer),
-        Column('memory_score',Integer),
+        Column('mmse',Integer),
         Column('caregiver_id',Integer)
     )
 
     caregivers = Table(
         'caregivers', meta,
-        Column('user_id', Integer, primary_key = True),
+        Column('user_id', String, primary_key = True),
         Column('name', String)
     )
 
     healthpros = Table(
         'healthpros', meta,
-        Column('user_id', Integer, primary_key = True),
+        Column('user_id', String, primary_key = True),
         Column('name', String),
         Column('specialty',String)
     )
 
     meta.drop_all(engine)
-    #meta.create_all(engine)
 
 def create_database(num_of_users,engine):
+
+    print("Procedurally recreating database ...")
+
+    def add_to_users_table(df,status):
+        df = df[['user_id','name']].copy()
+        df['status'] = status
+        df['password'] = hashlib.md5('password'.encode()).hexdigest()
+        df.to_sql('users', engine, if_exists='append', index=False)
+        pass
 
     init_tables_schemas(engine)
 
@@ -51,11 +70,8 @@ def create_database(num_of_users,engine):
     healthpros = generals+psychologists+neurologists
     patients = num_of_users - healthpros - caregivers
 
-    all_names = pd.read_csv('data/names.csv')['name'].unique()
+    all_names = pd.read_csv('database/names.csv')['name'].unique()
     all_names = np.random.choice(all_names, size=num_of_users)
-
-    def generate_id():
-        return uuid.uuid4().hex
 
     # healthpros
 
@@ -65,8 +81,9 @@ def create_database(num_of_users,engine):
     specialties += ['neurologists']*neurologists
 
     df_healthpros = pd.DataFrame(list(zip(ids, names, specialties)),
-                columns =['user_id', 'name', 'speciality'])
+                columns =['user_id', 'name', 'specialty'])
     df_healthpros.to_sql('healthpros', engine, if_exists='replace', index=False)
+    add_to_users_table(df_healthpros,"healthpro")
 
     # caregivers
 
@@ -77,6 +94,7 @@ def create_database(num_of_users,engine):
     df_caregivers = pd.DataFrame(list(zip(ids, names)),
                 columns =['user_id', 'name'])
     df_caregivers.to_sql('caregivers', engine, if_exists='replace', index=False)
+    add_to_users_table(df_caregivers,"caregiver")
 
     # patients
 
@@ -91,5 +109,9 @@ def create_database(num_of_users,engine):
     df_patients = pd.DataFrame(list(zip(ids, names, ages, memory_score, caregiver_ids)),
                 columns =['user_id', 'name', 'age', 'mmse', 'caregiver_id'])
     df_patients.to_sql('patients', engine, if_exists='replace', index=False)
+    add_to_users_table(df_patients,"patient")
+
+    print(f"Database recreated with {num_of_users} entries")
+    print("Thanks for waiting. (See readme for creation details)")
 
     pass
