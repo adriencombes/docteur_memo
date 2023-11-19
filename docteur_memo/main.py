@@ -1,7 +1,6 @@
 
 ##### EXTERNAL IMPORTS #####
 
-from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy import inspect
 
 ##### INTERNAL IMPORTS #####
@@ -18,7 +17,11 @@ def reset_tables(force_reset=False):
     tables_missing = not all(value in tables_present for value in tables_to_check)
 
     if force_reset or tables_missing:
-        create_database(100,engine)
+        create_database(10000,engine)
+    else:
+        print("Database found")
+
+##### LAUNCH #####
 
 if __name__ == "__main__":
-    reset_tables(force_reset=True)
+    reset_tables(force_reset=False)

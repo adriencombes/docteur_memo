@@ -2,7 +2,24 @@ services:
   db:
     image: postgres:15.4
     restart: always
-    env_file: .env
-    hostname: localhost
+    env_file: .dockerenv
+    hostname: db
     ports:
-      - 5401:5432
+      - 2025:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username=$POSTGRES_USER --dbname=$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    env_file: .dockerenv
+    ports:
+      - 2024:8000
+    depends_on:
+      db:
+        condition: service_healthy

@@ -21,34 +21,35 @@ def init_tables_schemas(engine):
     users = Table(
         'users', meta,
         Column('user_id', String, primary_key = True),
-        Column('name', String),
-        Column('password', String),
-        Column('status', String)
+        Column('name', String, nullable = False),
+        Column('password', String, nullable = False),
+        Column('status', String, nullable = False)
     )
 
     patients = Table(
         'patients', meta,
         Column('user_id', String, primary_key = True),
-        Column('name', String),
-        Column('age',Integer),
-        Column('mmse',Integer),
-        Column('caregiver_id',Integer)
+        Column('name', String, nullable = False),
+        Column('age',Integer, nullable = False),
+        Column('mmse',Integer, nullable = False),
+        Column('caregiver_id',String, nullable = True)
     )
 
     caregivers = Table(
         'caregivers', meta,
         Column('user_id', String, primary_key = True),
-        Column('name', String)
+        Column('name', String, nullable = False)
     )
 
     healthpros = Table(
         'healthpros', meta,
         Column('user_id', String, primary_key = True),
-        Column('name', String),
-        Column('specialty',String)
+        Column('name', String, nullable = False),
+        Column('specialty',String, nullable = False)
     )
 
     meta.drop_all(engine)
+    meta.create_all(engine)
 
 def create_database(num_of_users,engine):
 
@@ -70,19 +71,19 @@ def create_database(num_of_users,engine):
     healthpros = generals+psychologists+neurologists
     patients = num_of_users - healthpros - caregivers
 
-    all_names = pd.read_csv('database/names.csv')['name'].unique()
+    all_names = pd.read_csv('./names.csv')['name'].unique()
     all_names = np.random.choice(all_names, size=num_of_users)
 
     # healthpros
 
     names = all_names[:healthpros]
     ids = [generate_id() for n in range(len(names))]
-    specialties = ['generals']*generals+['psychologists']*psychologists
-    specialties += ['neurologists']*neurologists
+    specialties = ['general']*generals+['psychologist']*psychologists
+    specialties += ['neurologist']*neurologists
 
     df_healthpros = pd.DataFrame(list(zip(ids, names, specialties)),
                 columns =['user_id', 'name', 'specialty'])
-    df_healthpros.to_sql('healthpros', engine, if_exists='replace', index=False)
+    df_healthpros.to_sql('healthpros', engine, if_exists='append', index=False)
     add_to_users_table(df_healthpros,"healthpro")
 
     # caregivers
@@ -93,7 +94,7 @@ def create_database(num_of_users,engine):
 
     df_caregivers = pd.DataFrame(list(zip(ids, names)),
                 columns =['user_id', 'name'])
-    df_caregivers.to_sql('caregivers', engine, if_exists='replace', index=False)
+    df_caregivers.to_sql('caregivers', engine, if_exists='append', index=False)
     add_to_users_table(df_caregivers,"caregiver")
 
     # patients
@@ -102,13 +103,13 @@ def create_database(num_of_users,engine):
     names = all_names[n:n+patients]
     ids = [generate_id() for n in range(len(names))]
     ages = np.random.randint(65, size=patients)+25
-    memory_score = np.random.randint(20, size=patients)+10
+    memory_score = np.random.randint(25, size=patients)+5
     caregiver_ids = df_caregivers['user_id'].sample(n=patients,replace=True)
     caregiver_ids = caregiver_ids.reset_index(drop=True)
 
     df_patients = pd.DataFrame(list(zip(ids, names, ages, memory_score, caregiver_ids)),
                 columns =['user_id', 'name', 'age', 'mmse', 'caregiver_id'])
-    df_patients.to_sql('patients', engine, if_exists='replace', index=False)
+    df_patients.to_sql('patients', engine, if_exists='append', index=False)
     add_to_users_table(df_patients,"patient")
 
     print(f"Database recreated with {num_of_users} entries")

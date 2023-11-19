@@ -1,4 +1,6 @@
+fastapi
 numpy
 pandas
 psycopg2-binary
-sqlalchemy
+sqlalchemy==1.4.50
+uvicorn
