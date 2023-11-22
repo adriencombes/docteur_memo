@@ -18,17 +18,20 @@ from users import Caregiver, HealthPro, Patient, User
 ##### FUNCTIONS #####
 
 def sqla_obj_todict(row):
+    """Convert a database row (basically a class from Users package) in dict"""
     obj_as_dict = row.__dict__
     del obj_as_dict["_sa_instance_state"]
     return obj_as_dict
 
 
 def fetch_user_by_name(name):
+    """Given a name, return the associated User row from database"""
     statement = select(User).filter_by(name=name.capitalize())
     return session.execute(statement).fetchone()
 
 
 def logged_healthpro(request):
+    """Return True if the requester is a logged healthpro"""
     logged_name = SESSION_DB.get(request.cookies.get("Authorization"))
     if logged_name:
         role = sqla_obj_todict(fetch_user_by_name(logged_name)[0])["status"]
@@ -37,6 +40,7 @@ def logged_healthpro(request):
 
 
 def logged_neurologist(request):
+    """Return True if the requester is a logged neurologist"""
     logged_name = SESSION_DB.get(request.cookies.get("Authorization"))
     if logged_healthpro(request):
         statement = select(HealthPro).filter_by(name=logged_name)
