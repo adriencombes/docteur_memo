@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: fastapi-service
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      name: service-port
+      targetPort: 8000
+      port: 2024
+  selector:
+    app: fastapi

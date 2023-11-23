@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: fastapi-deployment
+
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: fastapi
+  template:
+    metadata:
+      labels:
+        app: fastapi
+    spec:
+      initContainers:
+      - name: init-fastapi
+        image: busybox:latest
+        command:
+          - 'sh'
+          - '-c'
+          - 'until nc -vz postgres 2025; do echo "Waiting for postgres..."; sleep 3; done'
+      containers:
+      - name: fastapi-container
+        image: api:latest
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        imagePullPolicy: Never
+        ports:
+            - containerPort: 8000
+              hostPort: 2024
+        env:
+          - name: POSTGRES_USER
+            value: "doc"
+          - name: POSTGRES_SERVER
+            value: "postgres"
+          - name: POSTGRES_PORT
+            value: "2025"
+          - name: POSTGRES_DB
+            value: "database"
+          - name: POSTGRES_PASSWORD
+            value: "password"
