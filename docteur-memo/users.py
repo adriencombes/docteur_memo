@@ -13,11 +13,13 @@ Base = declarative_base()
 
 ##### FUNCTIONS #####
 
+
 def generate_id():
     return uuid.uuid4().hex
 
 
 ##### CLASSES #####
+
 
 class User(Base):
     __tablename__ = "users"
