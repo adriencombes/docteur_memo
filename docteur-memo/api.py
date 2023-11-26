@@ -17,6 +17,7 @@ from users import Caregiver, HealthPro, Patient, User
 
 ##### FUNCTIONS #####
 
+
 def sqla_obj_todict(row):
     """Convert a database row (basically a class from Users package) in dict"""
     obj_as_dict = row.__dict__
@@ -60,7 +61,7 @@ SESSION_DB = {}
 DESCRIPTION = """
 ### Available endpoint *(unfold each to see params)*
 
-*Each endpoint's params are required unless specified
+*Each endpoint's params are required unless specified*
 
 <details>
  <summary><code>GET</code> <code><b>/login</b></code> - *(Authentify using your username and password)*</summary>
@@ -202,8 +203,7 @@ def debug(request: Request):
     }
 
 
-@app.get("/create_user/{name}")
-# @app.post("/create_user/{name}")
+@app.post("/create_user/{name}")
 def create_user(
     response: Response,
     request: Request,

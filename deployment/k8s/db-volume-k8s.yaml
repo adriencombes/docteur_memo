@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: db-volume
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+  replication-type: regional-pd
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: topology.kubernetes.io/zone
+        values:
+          - europe-west1-b
+          - europe-west1-c

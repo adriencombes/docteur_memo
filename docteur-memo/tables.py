@@ -20,6 +20,7 @@ from settings import engine, meta
 
 ##### FUNCTIONS #####
 
+
 def generate_id():
     return uuid.uuid4().hex
 
@@ -102,6 +103,7 @@ def create_database(num_of_users, engine):
 
     n = healthpros
     names = all_names[n : n + caregivers]
+    names[0] = "Alois"
     ids = [generate_id() for n in range(len(names))]
 
     df_caregivers = pd.DataFrame(list(zip(ids, names)), columns=["user_id", "name"])
@@ -112,6 +114,7 @@ def create_database(num_of_users, engine):
 
     n = healthpros + caregivers
     names = all_names[n : n + patients]
+    names[0] = "Auguste"
     ids = [generate_id() for n in range(len(names))]
     ages = np.random.randint(65, size=patients) + 25
     memory_score = np.random.randint(25, size=patients) + 5

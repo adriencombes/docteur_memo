@@ -6,7 +6,7 @@ metadata:
   name: fastapi-deployment
 
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: fastapi
@@ -24,7 +24,7 @@ spec:
           - 'until nc -vz postgres 2025; do echo "Waiting for postgres..."; sleep 3; done'
       containers:
       - name: fastapi-container
-        image: api:latest
+        image: europe-west1-docker.pkg.dev/lewagon-de-bootcamp/docker-hub/doc-memo
         resources:
           requests:
             memory: "64Mi"
@@ -32,7 +32,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "500m"
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
             - containerPort: 8000
               hostPort: 2024

@@ -19,6 +19,7 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: on-failure
+    env_file: .dockerenv
     ports:
       - 2024:8000
     depends_on:
